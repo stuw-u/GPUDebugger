@@ -8,47 +8,47 @@ using UnityEngine;
 
 namespace GPUDebugger
 {
+    [Flags]
+    public enum StructuredBufferTarget
+    {
+        Default = 0,
+        Vertex = 1,
+        Index = 2,
+        CopySource = 4,
+        CopyDestination = 8,
+        // Structured = 16 (Always used)
+        // Raw = 32 (Forbidden)
+        Append = 64,
+        Counter = 128,
+        IndirectArguments = 256,
+    }
+
     public class StructuredBuffer<T> : IDisposable where T : unmanaged
     {
-        [Flags]
-        public enum Target
-        {
-            Default = 0,
-            Vertex = 1,
-            Index = 2,
-            CopySource = 4,
-            CopyDestination = 8,
-            // Structured = 16 (Always used)
-            // Raw = 32 (Forbidden)
-            Append = 64,
-            Counter = 128,
-            Indirect = 256,
-        }
+        
 
         GraphicsBuffer buffer;
 
         private StructuredBuffer () { }
 
-        public StructuredBuffer (int count) : this(count, Target.Default) { }
+        public StructuredBuffer (int count) : this(count, StructuredBufferTarget.Default) { }
 
-        public StructuredBuffer (params T[] initialValues) : this(Target.Default, initialValues) { }
-
-        public StructuredBuffer (int count, Target target)
+        public StructuredBuffer (int count, StructuredBufferTarget target)
         {
             var fullTarget = GraphicsBuffer.Target.Structured | (GraphicsBuffer.Target)(int)target;
             buffer = new GraphicsBuffer(fullTarget, count, Marshal.SizeOf<T>());
         }
 
-        public StructuredBuffer (Target target, params T[] initialValues)
+        public StructuredBuffer (StructuredBufferTarget target, params T[] initialValues)
         {
             var fullTarget = GraphicsBuffer.Target.Structured | (GraphicsBuffer.Target)(int)target;
             buffer = new GraphicsBuffer(fullTarget, initialValues.Length, Marshal.SizeOf<T>());
             buffer.SetData(initialValues);
         }
 
-        public StructuredBuffer (int count, T initalValue) : this(count, Target.Default, initalValue) { }
+        public StructuredBuffer (int count, T initialValue) : this(count, StructuredBufferTarget.Default, initialValue) { }
 
-        public StructuredBuffer (int count, Target target, T initalValue)
+        public StructuredBuffer (int count, StructuredBufferTarget target, T initalValue)
         {
             var fullTarget = GraphicsBuffer.Target.Structured | (GraphicsBuffer.Target)(int)target;
             buffer = new GraphicsBuffer(fullTarget, count, Marshal.SizeOf<T>());
@@ -58,6 +58,8 @@ namespace GPUDebugger
             buffer.SetData(temp);
             temp.Dispose();
         }
+
+        public StructuredBuffer (params T[] initialValues) : this(Target.Default, initialValues) { }
 
         [BurstCompile]
         struct MemsetJob : IJobParallelFor
