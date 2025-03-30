@@ -1,0 +1,19 @@
+{
+    "name": "GPUDebugUtils.Editor",
+    "rootNamespace": "GPUDebugUtils.Editor",
+    "references": [
+        "GUID:e61a4f8a7a443774fa09688b7f202c57",
+        "GUID:d8b63aba1907145bea998dd612889d6b"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

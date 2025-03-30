@@ -1,0 +1,12 @@
+{
+  "name": "stuw-u.gpudebugger",
+  "displayName": "GPU Debugger",
+  "version": "0.1.3",
+  "unity": "2022.3",
+  "description": "Tools to help debug GPU objects or memory usage. Parse GraphicsBuffer and preview RenderTextures.",
+  "author": {
+      "name": "stuw-u",
+      "email": "studiocraftapp@gmail.com"
+  },
+  "hideInEditor": false
+}
