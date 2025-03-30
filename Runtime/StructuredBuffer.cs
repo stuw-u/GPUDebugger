@@ -59,7 +59,7 @@ namespace GPUDebugger
             temp.Dispose();
         }
 
-        public StructuredBuffer (params T[] initialValues) : this(Target.Default, initialValues) { }
+        public StructuredBuffer (params T[] initialValues) : this(StructuredBufferTarget.Default, initialValues) { }
 
         [BurstCompile]
         struct MemsetJob : IJobParallelFor
