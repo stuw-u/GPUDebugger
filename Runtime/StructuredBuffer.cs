@@ -53,7 +53,7 @@ namespace GPUDebugger
             var fullTarget = GraphicsBuffer.Target.Structured | (GraphicsBuffer.Target)(int)target;
             buffer = new GraphicsBuffer(fullTarget, count, Marshal.SizeOf<T>());
 
-            var temp = new NativeArray<T>(count, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
+            var temp = new NativeArray<T>(count, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             new MemsetJob() { Data = temp, FillValue = initalValue }.Schedule(count, 64).Complete();
             buffer.SetData(temp);
             temp.Dispose();
