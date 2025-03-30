@@ -122,7 +122,7 @@ namespace GPUDebugger.Editor
 
         private void OnGUI ()
         {
-            if(debugObject.obj == null)
+            if(debugObject != null && debugObject.obj == null)
             {
                 debugObject = null;
             }
