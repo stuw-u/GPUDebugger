@@ -8,5 +8,8 @@
       "name": "stuw-u",
       "email": "studiocraftapp@gmail.com"
   },
-  "hideInEditor": false
+  "hideInEditor": false,
+  "dependencies": {
+    "com.unity.mathematics": "*"
+  }
 }
