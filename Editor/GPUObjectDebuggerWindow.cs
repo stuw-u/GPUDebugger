@@ -90,9 +90,18 @@ namespace GPUDebugger.Editor
                         Type = bufferAttribute.FormatType
                     });
                 }
+                else if(fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(StructuredBuffer<>))
+                {
+                    var innerType = fieldType.GetGenericArguments()[0];
+                    window.bufferEntries.Add(new BufferEntry
+                    {
+                        Target = obj,
+                        Field = field,
+                        Type = innerType
+                    });
+                }
 
-                var textureAttribute = field.GetCustomAttribute<GPUDebugAttribute>();
-                if(textureAttribute != null && typeof(Texture).IsAssignableFrom(fieldType))
+                if(typeof(Texture).IsAssignableFrom(fieldType))
                 {
                     var texture = field.GetValue(obj) as Texture;
                     string name = string.IsNullOrEmpty(texture.name) ? field.Name : texture.name;
@@ -175,7 +184,8 @@ namespace GPUDebugger.Editor
             {
                 if (bufferEntries.Count == 0)
                 {
-                    EditorGUILayout.LabelField("No GraphicsBuffers found with [GPUDebugAs].");
+                    EditorGUILayout.LabelField("No GraphicsBuffers or ComputeBuffer found with [GPUDebugAs]. " +
+                        "You can also use the type StructuredBuffer<T> to make it appear here without attribute.", EditorStyles.wordWrappedLabel);
                     return;
                 }
 
@@ -204,7 +214,7 @@ namespace GPUDebugger.Editor
             {
                 if (textureEntries.Count == 0)
                 {
-                    EditorGUILayout.LabelField("No Texture found with [GPUDebug].");
+                    EditorGUILayout.LabelField("No Texture found.");
                     return;
                 }
 
@@ -277,33 +287,6 @@ namespace GPUDebugger.Editor
             }
         }
 
-        private void LoadBufferData (BufferEntry entry)
-        {
-            var bufferAsObject = entry.Field.GetValue(entry.Target);
-            if (bufferAsObject is GraphicsBuffer graphicBuffer)
-            {
-                int elementCount = graphicBuffer.count;
-                bufferData = Array.CreateInstance(entry.Type, elementCount);
-                bufferType = entry.Type;
-                bufferTypeFields = bufferType.GetFields();
-                isBufferPrimitive = bufferType.IsPrimitive;
-
-                graphicBuffer.GetData(bufferData);
-            }
-            else if (bufferAsObject is ComputeBuffer computeBuffer)
-            {
-                int elementCount = computeBuffer.count;
-                bufferData = Array.CreateInstance(entry.Type, elementCount);
-                bufferType = entry.Type;
-                bufferTypeFields = bufferType.GetFields();
-                isBufferPrimitive = bufferType.IsPrimitive;
-
-                computeBuffer.GetData(bufferData);
-            }
-
-            page = 0;
-        }
-
         private void DrawTexture ()
         {
             if (selectedTexture == null) return;
@@ -324,6 +307,39 @@ namespace GPUDebugger.Editor
                 selectedTexture = null;
             }
             EditorGUILayout.EndHorizontal();
+        }
+
+        #region Buffer Viewer Load & Draw
+        private void LoadBufferData (BufferEntry entry)
+        {
+            var bufferAsObject = entry.Field.GetValue(entry.Target);
+            var bufferType = bufferAsObject.GetType();
+
+            if (bufferAsObject is GraphicsBuffer graphicBuffer)
+            {
+                int elementCount = graphicBuffer.count;
+                bufferData = Array.CreateInstance(entry.Type, elementCount);
+                graphicBuffer.GetData(bufferData);
+            }
+            else if (bufferAsObject is ComputeBuffer computeBuffer)
+            {
+                int elementCount = computeBuffer.count;
+                bufferData = Array.CreateInstance(entry.Type, elementCount);
+                computeBuffer.GetData(bufferData);
+            }
+            else if (bufferType.IsGenericType && bufferType.GetGenericTypeDefinition() == typeof(StructuredBuffer<>))
+            {
+                var internalBuffer = bufferType.GetProperty("Buffer").GetValue(bufferAsObject) as GraphicsBuffer;
+                int elementCount = internalBuffer.count;
+                bufferData = Array.CreateInstance(entry.Type, elementCount);
+                internalBuffer.GetData(bufferData);
+            }
+
+            bufferType = entry.Type;
+            bufferTypeFields = bufferType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            isBufferPrimitive = TreatAsPrimitive(bufferType);
+
+            page = 0;
         }
 
         private void DrawBufferData ()
@@ -394,7 +410,9 @@ namespace GPUDebugger.Editor
             }
             EditorGUILayout.EndHorizontal();
         }
+        #endregion
 
+        #region Draw Fields
         private void DisplayField (FieldInfo field, object obj)
         {
             DisplayField(field.Name, field.GetValue(obj));
@@ -422,51 +440,63 @@ namespace GPUDebugger.Editor
             }
             else if (value is int2 int2Value)
             {
-                Vector2Field(label, new Vector2(int2Value.x, int2Value.y));
+                Vector2Field(label, int2Value);
             }
             else if (value is int3 int3Value)
             {
-                Vector3Field(label, new Vector4(int3Value.x, int3Value.y, int3Value.z));
+                Vector3Field(label, int3Value);
             }
             else if (value is int4 int4Value)
             {
-                Vector4Field(label, new Vector4(int4Value.x, int4Value.y, int4Value.z, int4Value.w));
+                Vector4Field(label, int4Value);
             }
             else if (value is uint2 uint2Value)
             {
-                Vector2Field(label, new Vector2(uint2Value.x, uint2Value.y));
+                Vector2Field(label, uint2Value);
             }
             else if (value is uint3 uint3Value)
             {
-                Vector3Field(label, new Vector4(uint3Value.x, uint3Value.y, uint3Value.z));
+                Vector3Field(label, uint3Value);
             }
             else if (value is uint4 uint4Value)
             {
-                Vector4Field(label, new Vector4(uint4Value.x, uint4Value.y, uint4Value.z, uint4Value.w));
+                Vector4Field(label, uint4Value);
             }
             else if (value is float2 float2Value)
             {
-                Vector2Field(label, new Vector2(float2Value.x, float2Value.y));
+                Vector2Field(label, float2Value);
             }
             else if (value is float3 float3Value)
             {
-                Vector3Field(label, new Vector4(float3Value.x, float3Value.y, float3Value.z));
+                Vector3Field(label, float3Value);
             }
             else if (value is float4 float4Value)
             {
-                Vector4Field(label, new Vector4(float4Value.x, float4Value.y, float4Value.z, float4Value.w));
+                Vector4Field(label, float4Value);
             }
             else if (value is Vector2 vector2Value)
             {
-                Vector2Field(label, vector2Value);
+                Vector2Field(label, (float2)vector2Value);
             }
             else if (value is Vector3 vector3Value)
             {
-                Vector3Field(label, vector3Value);
+                Vector3Field(label, (float3)vector3Value);
             }
             else if (value is Vector4 vector4Value)
             {
-                Vector4Field(label, vector4Value);
+                Vector4Field(label, (float4)vector4Value);
+            }
+            else if (value is double2 double2Value)
+            {
+                Vector2Field(label, double2Value);
+            }
+            else if (value is double3 double3Value)
+            {
+                Vector3Field(label, double3Value);
+            }
+            else if (value is double4 double4Value)
+            {
+                Vector4Field(label, double4Value);
             }
             else
             {
@@ -476,55 +506,69 @@ namespace GPUDebugger.Editor
             GUI.enabled = true;
         }
 
-        static void Vector2Field (string label, Vector2 value)
+        static readonly List<Type> primitivesType = new() {
+            typeof(uint2), typeof(uint3), typeof(uint4),
+            typeof(int2), typeof(int3), typeof(int4),
+            typeof(float2), typeof(float3), typeof(float4),
+            typeof(Vector2), typeof(Vector3), typeof(Vector4),
+
+        };
+        static bool TreatAsPrimitive (Type type)
+        {
+            if (type.IsPrimitive) return true;
+            else return primitivesType.Contains(type);
+        }
+
+        static void Vector2Field (string label, double2 value)
         {
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel(label);
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("X", GUILayout.Width(12));
-            EditorGUILayout.FloatField(value.x, GUILayout.MinWidth(30));
+            EditorGUILayout.DoubleField(value.x, GUILayout.MinWidth(30));
             EditorGUILayout.LabelField("Y", GUILayout.Width(12));
-            EditorGUILayout.FloatField(value.y, GUILayout.MinWidth(30));
+            EditorGUILayout.DoubleField(value.y, GUILayout.MinWidth(30));
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
         }
 
-        static void Vector3Field (string label, Vector3 value)
+        static void Vector3Field (string label, double3 value)
         {
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel(label);
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("X", GUILayout.Width(12));
-            EditorGUILayout.FloatField(value.x, GUILayout.MinWidth(30));
+            EditorGUILayout.DoubleField(value.x, GUILayout.MinWidth(30));
             EditorGUILayout.LabelField("Y", GUILayout.Width(12));
-            EditorGUILayout.FloatField(value.y, GUILayout.MinWidth(30));
+            EditorGUILayout.DoubleField(value.y, GUILayout.MinWidth(30));
             EditorGUILayout.LabelField("Z", GUILayout.Width(12));
-            EditorGUILayout.FloatField(value.z, GUILayout.MinWidth(30));
+            EditorGUILayout.DoubleField(value.z, GUILayout.MinWidth(30));
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
         }
 
-        static void Vector4Field (string label, Vector4 value)
+        static void Vector4Field (string label, double4 value)
         {
             EditorGUI.BeginDisabledGroup(true);
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel(label);
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("X", GUILayout.Width(12));
-            EditorGUILayout.FloatField(value.x, GUILayout.MinWidth(30));
+            EditorGUILayout.DoubleField(value.x, GUILayout.MinWidth(30));
             EditorGUILayout.LabelField("Y", GUILayout.Width(12));
-            EditorGUILayout.FloatField(value.y, GUILayout.MinWidth(30));
+            EditorGUILayout.DoubleField(value.y, GUILayout.MinWidth(30));
             EditorGUILayout.LabelField("Z", GUILayout.Width(12));
-            EditorGUILayout.FloatField(value.z, GUILayout.MinWidth(30));
+            EditorGUILayout.DoubleField(value.z, GUILayout.MinWidth(30));
             EditorGUILayout.LabelField("W", GUILayout.Width(12));
-            EditorGUILayout.FloatField(value.w, GUILayout.MinWidth(30));
+            EditorGUILayout.DoubleField(value.w, GUILayout.MinWidth(30));
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
         }
+#endregion
     }
 }

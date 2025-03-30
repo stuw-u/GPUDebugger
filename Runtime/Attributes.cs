@@ -2,11 +2,6 @@
 
 namespace GPUDebugger
 {
-    public class GPUDebugAttribute : Attribute
-    {
-
-    }
-
     public class GPUDebugAsAttribute : Attribute
     {
         public Type FormatType;

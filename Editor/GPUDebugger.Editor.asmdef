@@ -1,9 +1,9 @@
 {
-    "name": "GPUDebugUtils.Editor",
-    "rootNamespace": "GPUDebugUtils.Editor",
+    "name": "GPUDebugger.Editor",
+    "rootNamespace": "GPUDebugger.Editor",
     "references": [
-        "GUID:e61a4f8a7a443774fa09688b7f202c57",
-        "GUID:d8b63aba1907145bea998dd612889d6b"
+        "Unity.Mathematics",
+        "GPUDebugger"
     ],
     "includePlatforms": [
         "Editor"
@@ -11,7 +11,9 @@
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        ""
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

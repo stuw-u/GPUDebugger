@@ -1,7 +1,11 @@
 {
-    "name": "GPUDebugUtils",
-    "rootNamespace": "GPUDebugUtils",
-    "references": [],
+    "name": "GPUDebugger",
+    "rootNamespace": "GPUDebugger",
+    "references": [
+        "Unity.Collections",
+        "Unity.Burst",
+        "Unity.Mathematics"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -16,11 +16,13 @@ The tracked objects do not have to be `Unity.Object`. The tool does not search f
 ### Buffer Viewer
 See a list of `GraphicsBuffer` or `ComputeBuffer` that can be parsed. Put the attribute `[GPUDebugAs(typeof(YourStruct))]` before your buffers to track them.
 Once the Load button is clicked, the whole buffer will be downloaded allowing you to preview the fields.
+You can also use the custom type StructureBuffer<T> to make it show up without attribute. This custom type provides a bunch of useful methods that are
+possible because of the type context.
 
 ![image](https://github.com/user-attachments/assets/7346cba6-be4e-479f-8bdf-42e50e14b82f)
 
 ### Texture Viewer
-See a list of textures. Supports any type inheriting from `Texture` like `RenderTexture`. Put the attribute `[GPUDebug]` to make it show up. 
+See a list of textures. Supports any type inheriting from `Texture` like `RenderTexture`.
 Click on Open to preview the texture.
 
 ![image](https://github.com/user-attachments/assets/62e1a760-73e6-4c5e-a909-51dbb77eacd1)
@@ -38,6 +40,7 @@ Put the attribute `[GPUDebugRoutine]` on any parameterless method on your tracke
 ## Future Plans
 - Bindless buffers DX12 plug-in for the editor that would allow Gizmos to be queue/drawn inside Compute Shaders
 - Automatically register ScriptableRenderFeature and ScriptableRenderPasses as objects to be debugged.
+- Better compute shader binding/property referencing abstraction.
 
 ## TODO
 - Fix Texture Preview being squashed down when the window is smaller.
