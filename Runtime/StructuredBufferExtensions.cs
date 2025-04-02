@@ -70,7 +70,7 @@ namespace GPUDebugger
 
         public static void DispatchCompute<T> (this CommandBuffer commandBuffer, ComputeShader computeShader, int kernelIndex, StructuredBuffer<T> indirectArgs, uint argOffset) where T : unmanaged
         {
-            commandBuffer.DispatchCompute(computeShader, kernelIndex, indirectArgs, argOffset);
+            commandBuffer.DispatchCompute(computeShader, kernelIndex, indirectArgs.Buffer, argOffset);
         }
     }
 }
