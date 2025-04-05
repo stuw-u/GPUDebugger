@@ -25,17 +25,33 @@ namespace GPUDebugger.Editor
 
                 foreach (var field in fields)
                 {
-                    if (field.FieldType == typeof(GraphicsBuffer))
+                    var fieldType = field.FieldType;
+                    if (fieldType == typeof(GraphicsBuffer))
                     {
                         var buffer = field.GetValue(obj) as GraphicsBuffer;
                         if (buffer == null) continue;
                         entries.Add(($"{type.Name}.{field.Name}", (long)buffer.stride * buffer.count));
                     }
-                    if (field.FieldType == typeof(ComputeBuffer))
+                    if (fieldType == typeof(ComputeBuffer))
                     {
                         var buffer = field.GetValue(obj) as ComputeBuffer;
                         if (buffer == null) continue;
                         entries.Add(($"{type.Name}.{field.Name}", (long)buffer.stride * buffer.count));
+                    }
+                    if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(StructuredBuffer<>))
+                    {
+                        var innerType = fieldType.GetGenericArguments()[0];
+                        var structuredBuffer = field.GetValue(obj);
+                        if (structuredBuffer == null) continue;
+
+                        var bufferProperty = fieldType.GetProperty("Buffer");
+                        if (bufferProperty != null)
+                        {
+                            if (bufferProperty.GetValue(structuredBuffer) is GraphicsBuffer graphicsBuffer)
+                            {
+                                entries.Add(($"{type.Name}.{field.Name}.Buffer", (long)graphicsBuffer.stride * graphicsBuffer.count));
+                            }
+                        }
                     }
                     if (typeof(Texture).IsAssignableFrom(field.FieldType))
                     {

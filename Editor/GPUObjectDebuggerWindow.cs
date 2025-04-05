@@ -569,6 +569,57 @@ namespace GPUDebugger.Editor
             EditorGUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
         }
-#endregion
+
+        static void Vector2Field (string label, uint2 value)
+        {
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(label);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("X", GUILayout.Width(12));
+            EditorGUILayout.LongField(value.x, GUILayout.MinWidth(30));
+            EditorGUILayout.LabelField("Y", GUILayout.Width(12));
+            EditorGUILayout.LongField(value.y, GUILayout.MinWidth(30));
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
+            EditorGUI.EndDisabledGroup();
+        }
+
+        static void Vector3Field (string label, uint3 value)
+        {
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(label);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("X", GUILayout.Width(12));
+            EditorGUILayout.LongField(value.x, GUILayout.MinWidth(30));
+            EditorGUILayout.LabelField("Y", GUILayout.Width(12));
+            EditorGUILayout.LongField(value.y, GUILayout.MinWidth(30));
+            EditorGUILayout.LabelField("Z", GUILayout.Width(12));
+            EditorGUILayout.LongField(value.z, GUILayout.MinWidth(30));
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
+            EditorGUI.EndDisabledGroup();
+        }
+
+        static void Vector4Field (string label, uint4 value)
+        {
+            EditorGUI.BeginDisabledGroup(true);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel(label);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("X", GUILayout.Width(12));
+            EditorGUILayout.LongField(value.x, GUILayout.MinWidth(30));
+            EditorGUILayout.LabelField("Y", GUILayout.Width(12));
+            EditorGUILayout.LongField(value.y, GUILayout.MinWidth(30));
+            EditorGUILayout.LabelField("Z", GUILayout.Width(12));
+            EditorGUILayout.LongField(value.z, GUILayout.MinWidth(30));
+            EditorGUILayout.LabelField("W", GUILayout.Width(12));
+            EditorGUILayout.LongField(value.w, GUILayout.MinWidth(30));
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndHorizontal();
+            EditorGUI.EndDisabledGroup();
+        }
+        #endregion
     }
 }
